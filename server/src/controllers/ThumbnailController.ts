@@ -1,6 +1,5 @@
 import express, { Request, Response } from "express";
 import thumbnailModel from "../model/Thumbnail";
-import replicate from "../config/replicate";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "node:fs";
 
@@ -75,25 +74,25 @@ export const generateThumbnail = async (req: Request, res: Response) => {
       prompt += `Additional details: ${user_prompt}. `;
     }
     prompt += `The thumbnail should be ${aspect_ratio}, visually stunning, and designed to maximize click-through rate. Make it bold, professional, and impossible to ignore.`;
-    const input = {
-      prompt,
-      aspect_ratio: aspect_ratio || "16:9",
-      output_format: "jpg",
-      safety_filter_level: "block_medium_and_above",
-    };
-    const output: any = await replicate.run("google/imagen-4", { input });
 
-    // Extract image URL correctly
-    const imageUrl = output.url()
+    // Generate FREE image using Pollinations
+    const encodedPrompt = encodeURIComponent(prompt);
+
+    const width = 1024;
+    const height = 576;
+
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${Date.now()}`;
+
+    console.log("Generated image URL:", imageUrl);
 
     if (!imageUrl) {
-      throw new Error("Image generation failed: No image URL returned");
+      throw new Error("Image generation failed");
     }
 
     console.log("Generated image URL:", imageUrl);
 
     // Upload to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(imageUrl.href, {
+    const uploadResult = await cloudinary.uploader.upload(imageUrl, {
       resource_type: "image",
     });
 

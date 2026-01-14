@@ -19,7 +19,12 @@ function PreviewPanel({
 
   const onDownload = () => {
     if (!thumbnails?.image_url) return;
-    window.open(thumbnails.image_url, "_blank");
+    // window.open(thumbnails.image_url, "_blank");
+    const link = document.createElement('a');
+    link.href =thumbnails?.image_url.replace('/upload', '/upload/fl_attachment')
+    document.body.appendChild(link);
+    link.click()
+    link.remove()
   };
   return (
     <div className="relative mx-auto w-full max-w-2xl">

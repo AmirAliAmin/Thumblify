@@ -7,6 +7,9 @@ import {
 } from "../assets/assets";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowUpRight, DownloadIcon, TrashIcon } from "lucide-react";
+import { useAUth } from "../context/AuthContext";
+import api from "../config/api";
+import toast from "react-hot-toast";
 
 function MyGeneration() {
   const [thumbnails, setThumbnails] = useState<IThumbnail[]>([]);
@@ -14,9 +17,18 @@ function MyGeneration() {
 
   const naviagte = useNavigate();
 
+  const {isLoggedIn} = useAUth()
+
   const fetchThumbnail = async () => {
-    setThumbnails(dummyThumbnails as unknown as IThumbnail[]);
-    setLoading(false);
+    try {
+       const { data } = await api.get(`/api/user/thumbnails`);
+       setThumbnails(data.thumbnail || [])
+    } catch (error:any) {
+      toast.error(error.message);
+    }
+    finally{
+      setLoading(false)
+    }
   };
 
   const aspectRatioClass = {
@@ -25,14 +37,30 @@ function MyGeneration() {
     "9:16": "aspect-[9/16]",
   } as Record<AspectRatio, string>;
   const handleDownload = (image_url: string) => {
-    window.open(image_url, "_blank");
+     if (!image_url) return;
+    // window.open(thumbnails.image_url, "_blank");
+    const link = document.createElement('a');
+    link.href =image_url.replace('/upload', '/upload/fl_attachment')
+    document.body.appendChild(link);
+    link.click()
+    link.remove()
   };
   const handleDelete = async (id: string) => {
-    console.log(id);
+    try {
+      const confirm = window.confirm('Are you sure want to delete this thumbnail?')
+      if (!confirm) return;
+      const {data} = await api.delete(`/api/generate/deleted/${id}`)
+      toast.success(data.message)
+      setThumbnails(thumbnails.filter((t)=>t._id !== id))
+    } catch (error:any) {
+      toast.error(error.message);
+    }
   };
   useEffect(() => {
-    fetchThumbnail();
-  }, []);
+    if (isLoggedIn) {
+      fetchThumbnail();
+    }
+  }, [isLoggedIn]);
   return (
     <>
       <SoftBackdrop />
