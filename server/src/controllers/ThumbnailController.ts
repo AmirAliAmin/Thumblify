@@ -75,6 +75,9 @@ export const generateThumbnail = async (req: Request, res: Response) => {
     }
     prompt += `The thumbnail should be ${aspect_ratio}, visually stunning, and designed to maximize click-through rate. Make it bold, professional, and impossible to ignore.`;
 
+    prompt += `Include the text "${title}" exactly as written in English on the thumbnail, readable and styled appropriately. Do not translate the text. `;
+
+
     // Generate FREE image using Pollinations
     const encodedPrompt = encodeURIComponent(prompt);
 

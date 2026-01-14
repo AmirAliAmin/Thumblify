@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import SoftBackdrop from "../components/SoftBackdrop";
 import {
-  dummyThumbnails,
   type AspectRatio,
   type IThumbnail,
 } from "../assets/assets";
